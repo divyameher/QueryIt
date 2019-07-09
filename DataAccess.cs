@@ -9,8 +9,14 @@ namespace QueryIt
     public class EmployeeDb : DbContext
     {
         public DbSet<Employee> Employees { get; set; }
-    }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                @"Server=PF0S793ASUNKUM\\MSSQLSERVER17;Database=PeopleDB;User Id=sa;Password=Admin123;
+                Trusted_Connection=True;MultipleActiveResultSets=true;");
+        }
+    }
     public interface IRepository<T> : IDisposable
     {
         void Add(T newEntity);
@@ -27,12 +33,15 @@ namespace QueryIt
         public SqlRepository(DbContext ctx)
         {
             _context = ctx;
+            //_context.Database.EnsureDeleted();
+            //_context.Database.EnsureCreated();
+            //_context.Database.Migrate();
             _set = _context.Set<T>();
         }
 
         public void Add(T newEntity)
         {
-            throw new NotImplementedException();
+            _set.Add(newEntity);
         }
 
         public int Commit()
@@ -52,7 +61,7 @@ namespace QueryIt
 
         public IQueryable<T> FindAll()
         {
-            throw new NotImplementedException();
+            return _set;
         }
 
         public T FindById(int id)
